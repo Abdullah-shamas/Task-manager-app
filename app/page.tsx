@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { createTask, toggleTaskStatus, deleteTask } from './actions';
 
