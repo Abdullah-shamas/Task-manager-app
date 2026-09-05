@@ -1,93 +1,39 @@
-export const dynamic = 'force-dynamic';
-import { prisma } from '@/lib/prisma';
-import { createTask, toggleTaskStatus, deleteTask } from './actions';
+// app/page.tsx
+import Link from "next/link";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
 export default async function HomePage() {
-  const projects = await prisma.project.findMany({
-    include: {
-      tasks: {
-        orderBy: { id: 'asc' },
-      },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+  const session = await auth();
+
+  // Agar user pehle se logged-in hai to seedha dashboard par bhej do
+  if (session?.user) {
+    redirect("/dashboard");
+  }
 
   return (
-    <main className="max-w-2xl mx-auto py-12 px-4">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Task Manager</h1>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-6 text-center">
+      <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl">
+        Task Manager App
+      </h1>
+      <p className="mt-4 max-w-md text-gray-600">
+        Secure task management powered by Next.js App Router and Auth.js v5.
+      </p>
 
-      <div className="space-y-8">
-        {projects.map((project) => (
-          <div key={project.id} className="border border-gray-200 rounded-xl p-6 shadow-sm bg-white">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">{project.title}</h2>
-
-            {/* Form to Add Task */}
-            <form action={createTask} className="flex gap-2 mb-6">
-              <input type="hidden" name="projectId" value={project.id} />
-              <input
-                type="text"
-                name="title"
-                placeholder="New task title..."
-                required
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                type="submit"
-                className="bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-              >
-                Add
-              </button>
-            </form>
-
-            {/* Task List */}
-            <ul className="space-y-3">
-              {project.tasks.map((task) => (
-                <li
-                  key={task.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-100"
-                >
-                  <form
-                    action={toggleTaskStatus.bind(null, task.id, task.status)}
-                    className="flex items-center gap-3 cursor-pointer"
-                  >
-                    <button
-                      type="submit"
-                      className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${
-                        task.status === 'DONE'
-                          ? 'bg-green-100 text-green-700 border-green-200'
-                          : 'bg-amber-100 text-amber-700 border-amber-200'
-                      }`}
-                    >
-                      {task.status}
-                    </button>
-                    <span
-                      className={`text-sm ${
-                        task.status === 'DONE'
-                          ? 'line-through text-gray-400'
-                          : 'text-gray-800 font-medium'
-                      }`}
-                    >
-                      {task.title}
-                    </span>
-                  </form>
-
-                  {/* Delete Button */}
-                  <form action={deleteTask.bind(null, task.id)}>
-                    <button
-                      type="submit"
-                      className="text-xs text-red-500 hover:text-red-700 hover:underline px-2 py-1"
-                    >
-                      Delete
-                    </button>
-                  </form>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+      <div className="mt-8 flex gap-4">
+        <Link
+          href="/login"
+          className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
+        >
+          Sign In
+        </Link>
+        <Link
+          href="/register"
+          className="rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+        >
+          Register
+        </Link>
       </div>
-    </main>
+    </div>
   );
 }
