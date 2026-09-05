@@ -12,6 +12,9 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  // Safe type-casting for role
+  const userRole = (session.user as { role?: string })?.role || "USER";
+
   const tasks = await prisma.task.findMany({
     where: { userId: session.user.id },
     orderBy: { createdAt: "desc" },
@@ -29,7 +32,7 @@ export default async function DashboardPage() {
 
           <div className="flex items-center gap-3">
             {/* Admin shortcut (Sirf ADMIN ko dikhega) */}
-            {session.user.role === "ADMIN" && (
+            {userRole === "ADMIN" && (
               <Link
                 href="/admin"
                 className="text-xs bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-md font-medium transition-colors"
@@ -40,12 +43,12 @@ export default async function DashboardPage() {
 
             <span
               className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
-                session.user.role === "ADMIN"
+                userRole === "ADMIN"
                   ? "bg-purple-100 text-purple-800"
                   : "bg-blue-100 text-blue-800"
               }`}
             >
-              {session.user.role || "USER"}
+              {userRole}
             </span>
 
             {/* Logout Action */}

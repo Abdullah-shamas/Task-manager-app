@@ -12,8 +12,10 @@ export default async function AdminDashboardPage() {
     redirect("/login");
   }
 
-  // 2. Authorization check (Only ADMIN allowed)
-  if (session.user.role !== "ADMIN") {
+  // 2. Authorization check with safe type-casting
+  const userRole = (session.user as { role?: string })?.role;
+
+  if (userRole !== "ADMIN") {
     redirect("/dashboard");
   }
 
